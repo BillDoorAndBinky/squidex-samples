@@ -1,0 +1,12 @@
+{
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "semi": [
+      2, 
+      "always"],
+    "indent": [
+      "error",
+      2
+    ]
+  }
+}
