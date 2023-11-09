@@ -7,6 +7,7 @@ import Card from './Card';
 import { H3 } from './Typography';
 
 export type ArticleCardProps = {
+  // The article to render.
   article: Article;
 };
 
@@ -14,7 +15,7 @@ export const ArticleCard = (props: ArticleCardProps) => {
   const { article } = props;
 
   return (
-    <Link href={article.slug} key={article.slug}>
+    <Link href={`/news/${article.slug}`}>
       <Card>
         <Card.Header>
           <img className='rounded-t-md' src={`${article.teaserImage}?width=400&height=300`} alt={article.title} />

@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 export type BadgeProps = React.PropsWithChildren<{
+  // The size of the badge.
   size?: 'xs' | 'sm';
 }>;
 

@@ -1,16 +1,22 @@
+import classNames from 'classnames';
 import * as React from 'react';
 
-export type CardProps = React.PropsWithChildren;
+export type CardProps = React.PropsWithChildren<{
+  // Indicates whether the card should be stretched to 100% height.
+  fullHeight?: boolean;
+}>;
 
-const Card = ({ children }: CardProps) => {
+export type CardBaseProps = React.PropsWithChildren;
+
+const Card = ({ children, fullHeight }: CardProps) => {
   return (
-    <div className='bg-white shadow-lg shadow-gray-200 rounded-md'>
+    <div className={classNames('bg-white shadow-lg shadow-gray-200 rounded-md', { 'h-full': fullHeight })}>
       {children}
     </div>
   );
 };
 
-const CardHeader = ({ children }: CardProps) => {
+const CardHeader = ({ children }: CardBaseProps) => {
   return (
     <div>
       {children}
@@ -18,7 +24,7 @@ const CardHeader = ({ children }: CardProps) => {
   );
 };
 
-const CardBody = ({ children }: CardProps) => {
+const CardBody = ({ children }: CardBaseProps) => {
   return (
     <div className='p-6'>
       {children}

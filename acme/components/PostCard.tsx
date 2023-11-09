@@ -5,17 +5,22 @@ import * as React from 'react';
 import { AuthorView } from './AuthorView';
 import Card from './Card';
 import { H3 } from './Typography';
+import classNames from 'classnames';
 
 export type PostCardProps = {
+  // The post to show.
   post: Post;
+
+  // Indicates whether the card should be stretched to 100% height.
+  fullHeight?: boolean;
 };
 
 export const PostCard = (props: PostCardProps) => {
-  const { post } = props;
+  const { fullHeight, post } = props;
 
   return (
-    <Link href={post.slug} key={post.slug}>
-      <Card>
+    <Link href={`/blog/${post.slug}`} className={classNames({ 'h-full': fullHeight })}>
+      <Card fullHeight={fullHeight}>
         <Card.Header>
           <img className='rounded-t-md' src={`${post.teaserImage}?width=400&height=300`} alt={post.title} />
         </Card.Header>

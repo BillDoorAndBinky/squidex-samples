@@ -5,8 +5,10 @@ import * as React from 'react';
 import { Avatar } from './Avatar';
 
 export type AuthorViewprops = {
-  author: Author;
+  // The author.
+  author?: Author | null;
 
+  // The publish date.
   date?: string;
 };
 
@@ -15,18 +17,22 @@ export const AuthorView = (props: AuthorViewprops) => {
 
   return (
     <div className='flex items-center'>
-      <Avatar url={author.avatar} size={40} />
+      {author &&
+        <>
+          <Avatar url={author?.avatar} size={40} />
 
-      <div className='ms-2 text-sm'>
-        {date &&
-          <div className='text-slate-600'>
-            {format(Date.parse(date), 'PPP')}
+          <div className='ms-2 text-sm'>
+            {date &&
+              <div className='text-slate-600'>
+                {format(Date.parse(date), 'PPP')}
+              </div>
+            }
+            <div className='font-semibold'>
+              {author.name}
+            </div>
           </div>
-        }
-        <div className='font-semibold'>
-          {author.name}
-        </div>
-      </div>
+        </>
+      }
     </div>
   );
 };

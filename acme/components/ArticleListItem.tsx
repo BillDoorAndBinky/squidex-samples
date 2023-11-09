@@ -7,6 +7,7 @@ import { Badge } from './Badge';
 import { H4 } from './Typography';
 
 export type ArticleListItemProps = {
+  // The article to render.
   article: Article;
 };
 
@@ -14,8 +15,8 @@ export const ArticleListItem = (props: ArticleListItemProps) => {
   const { article } = props;
 
   return (
-    <Link href={article.slug} key={article.slug}>
-      <div className='flex mb-6'>
+    <Link href={`/news/${article.slug}`}>
+      <div className='flex'>
         <div className='w-2/5 pe-4'>
           <img className='rounded-lg' src={`${article.teaserImage}?width=400&height=300`} alt={article.title} />
         </div>
