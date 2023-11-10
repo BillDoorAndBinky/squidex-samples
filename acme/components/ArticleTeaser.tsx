@@ -4,8 +4,8 @@ import * as React from 'react';
 import { AuthorView } from './AuthorView';
 import { Badge } from './Badge';
 import { H2, H3 } from './Typography';
-import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
+import { Markdown } from './Markdown';
 
 export type ArticleTeaserProps = {
   // The article to render.
@@ -56,7 +56,7 @@ export const ArticleTeaser = (props: ArticleTeaserProps) => {
       </div>
 
       <div className='text-slate-600'>
-        <ReactMarkdown>{text}</ReactMarkdown>
+        <Markdown>{text}</Markdown>
       </div>
     </Link>
   );

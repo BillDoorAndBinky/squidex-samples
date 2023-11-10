@@ -4,6 +4,7 @@ export * from "./ArticleListItem";
 export * from "./ArticleTeaser";
 export * from "./Button";
 export * from "./Card";
+export * from "./Markdown";
 export * from "./Navbar";
 export * from "./PostCard";
 export * from "./Typography";

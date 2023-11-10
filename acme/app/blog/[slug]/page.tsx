@@ -1,10 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
-import { AuthorView, H1 } from '@/components';
+import { AuthorView, H1, Markdown } from '@/components';
 import { notFound } from 'next/navigation';
 import { Badge } from '@/components/Badge';
 import { POST_FIELDS, parseArticleFromGraphQL, parsePostFromGraphQL } from '@/model';
 import { getSquidexClient } from '@/squidex/client';
-import ReactMarkdown from 'react-markdown';
 
 export default async function Page({ params }: { params: { slug: string }}) {
   const response = await getSquidexClient().contents.getGraphQl({
@@ -39,12 +38,12 @@ export default async function Page({ params }: { params: { slug: string }}) {
 
       <AuthorView author={post.author} date={post.lastModified} />
 
-      <div className='mt-3'>
+      <div className='mt-4 mb-4'>
         <H1>{post.title}</H1>
       </div>
 
       <div className='text-slate-600'>
-        <ReactMarkdown>{post.text}</ReactMarkdown>
+        <Markdown>{post.text}</Markdown>
       </div>
     </div>
   );
