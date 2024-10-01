@@ -120,7 +120,7 @@ public partial class App
 
         [Command("import", Description = "Import the content to a schema.",
             ExtendedHelpText =
-@"Use the following format to define fields from the CSV/JSON file:
+                @"Use the following format to define fields from the CSV/JSON file:
     - name (for invariant fields)
     - name=other(for invariant fields from another field)
     - name.de=name (for localized fields)
@@ -166,7 +166,7 @@ public partial class App
 
         [Command("export", Description = "Export the content for a schema.",
             ExtendedHelpText =
-@"Use the following format to define fields for CSV:
+                @"Use the following format to define fields for CSV:
     - id
     - createdBy
     - created
@@ -347,7 +347,7 @@ public partial class App
             public string Delimiter { get; set; } = ";";
 
             [Option("key", Description = "The key field to use.")]
-            public string KeyField { get; set; }
+            public string[] KeyField { get; set; }
 
             [Option("format", Description = "Defines the input format.")]
             public ImExportFormat Format { get; set; }
@@ -432,7 +432,7 @@ public partial class App
             [Option("file", Description = "The optional path to the file.")]
             public string File { get; set; }
 
-            string? IImportSettings.KeyField => null;
+            string[]? IImportSettings.KeyField => null;
 
             public sealed class Validator : AbstractValidator<GenerateDummiesArguments>
             {
