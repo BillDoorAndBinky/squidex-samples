@@ -427,7 +427,7 @@ public partial class App
             [Operand("schema", Description = "The name of the schema.")]
             public string Schema { get; set; }
 
-            [Operand("deep-key", Description = "The name of the schema.")]
+            [Operand("deep-key", Description = "The key field is nested in component. If it's 'true', key full path to value in data")]
             bool IImportSettings.IsKeyDeep { get; } = false;
 
             [Option('u', "unpublished", Description = "Import unpublished content.")]
