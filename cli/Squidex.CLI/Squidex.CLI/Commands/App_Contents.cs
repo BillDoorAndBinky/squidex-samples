@@ -349,6 +349,10 @@ public partial class App
             [Option("key", Description = "The key field to use.")]
             public string[] KeyField { get; set; }
 
+            [Option("deep-key",
+                Description = "The key field is nested in component. If it's 'true', key full path to value in data")]
+            public bool IsKeyDeep { get; set; }
+
             [Option("format", Description = "Defines the input format.")]
             public ImExportFormat Format { get; set; }
 
@@ -422,6 +426,9 @@ public partial class App
         {
             [Operand("schema", Description = "The name of the schema.")]
             public string Schema { get; set; }
+
+            [Operand("deep-key", Description = "The name of the schema.")]
+            bool IImportSettings.IsKeyDeep { get; } = false;
 
             [Option('u', "unpublished", Description = "Import unpublished content.")]
             public bool Unpublished { get; set; }

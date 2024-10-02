@@ -52,47 +52,28 @@ public static class ImportHelper
 
                     if (keyField != null && keyField.Length != 0)
                     {
-                        object filter;
-                        if (keyField.Length == 1)
+                        var keyFilterArray = new List<object>(keyField.Length);
+                        foreach (var key in keyField)
                         {
-                            var singleKey = keyField[0];
-                            if (!data.TryGetValue(singleKey, out var temp) || temp is not JObject obj ||
-                                !obj.TryGetValue("iv", StringComparison.Ordinal, out var value))
-                            {
-                                throw new InvalidOperationException($"Cannot find key '{singleKey}' in data.");
-                            }
+                            var value = setting.IsKeyDeep
+                                ? GetTokenByDeepKeyInData(data, key)
+                                : GetTokenByKeyInData(data, key);
 
-                            filter = new
+                            var path = setting.IsKeyDeep ? $"data.{key}" : $"data.{key}.iv";
+
+                            keyFilterArray.Add(new
                             {
-                                path = $"data.{singleKey}.iv",
+                                path,
                                 op,
-                                value,
-                            };
+                                value
+                            });
                         }
-                        else
+
+                        object filter = new
                         {
-                            var keyFilterArray = new List<object>(keyField.Length);
-                            foreach (var key in keyField)
-                            {
-                                if (!data.TryGetValue(key, out var temp) || temp is not JObject obj ||
-                                    !obj.TryGetValue("iv", StringComparison.Ordinal, out var value))
-                                {
-                                    throw new InvalidOperationException($"Cannot find key '{key}' in data.");
-                                }
+                            and = keyFilterArray
+                        };
 
-                                keyFilterArray.Add(new
-                                {
-                                    path = $"data.{key}.iv",
-                                    op,
-                                    value
-                                });
-                            }
-
-                            filter = new
-                            {
-                                and = keyFilterArray
-                            };
-                        }
 
                         job.Query = new
                         {
@@ -128,6 +109,44 @@ public static class ImportHelper
         }
 
         log.Completed($"Import of {totalWritten} content items completed");
+    }
+
+    private static JToken? GetTokenByKeyInData(DynamicData data, string key)
+    {
+        if (!data.TryGetValue(key, out var temp) || temp is not JObject obj ||
+            !obj.TryGetValue("iv", StringComparison.Ordinal, out var value))
+        {
+            throw new InvalidOperationException($"Cannot find key '{key}' in data.");
+        }
+
+        return value;
+    }
+
+    private static JToken? GetTokenByDeepKeyInData(DynamicData data, string key)
+    {
+        var keyParts = key.Split('.');
+        switch (keyParts.Length)
+        {
+            case 0:
+                throw new InvalidOperationException($"Invalid deep key '{key}'.");
+            case 1:
+                return GetTokenByKeyInData(data, key);
+        }
+
+        var keyPart = keyParts[0];
+        if (!data.TryGetValue(keyPart, out var token))
+        {
+            throw new InvalidOperationException($"Cannot find key '{key}' in data.");
+        }
+
+        var jsonPath = string.Join('.', keyParts.Skip(1));
+        var value = token.SelectToken(jsonPath);
+        if (value == null)
+        {
+            throw new InvalidOperationException($"Cannot find key '{key}' in data.");
+        }
+
+        return value;
     }
 
     public static IEnumerable<DynamicData> Read(this Csv2SquidexConverter converter, Stream stream,
