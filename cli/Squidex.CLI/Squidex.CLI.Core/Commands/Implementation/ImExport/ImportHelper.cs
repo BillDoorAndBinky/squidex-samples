@@ -18,7 +18,8 @@ namespace Squidex.CLI.Commands.Implementation.ImExport;
 
 public static class ImportHelper
 {
-    public static async Task ImportAsync(this ISession session, IImportSettings setting, ILogger log, IEnumerable<DynamicData> datas)
+    public static async Task ImportAsync(this ISession session, IImportSettings setting, ILogger log,
+        IEnumerable<DynamicData> datas)
     {
         var contents = session.Client.DynamicContents(setting.Schema);
 
@@ -37,6 +38,7 @@ public static class ImportHelper
             };
 
             const string op = "eq";
+            const string empty = "empty";
 
             foreach (var batch in datas.Batch(50))
             {
@@ -49,21 +51,34 @@ public static class ImportHelper
                         Data = data,
                     };
 
-                    if (!string.IsNullOrWhiteSpace(keyField))
+                    if (keyField != null && keyField.Length != 0)
                     {
-                        if (!data.TryGetValue(keyField, out var temp) || temp is not JObject obj || !obj.TryGetValue("iv", StringComparison.Ordinal, out var value))
+                        var keyFilterArray = new List<object>(keyField.Length);
+                        foreach (var key in keyField)
                         {
-                            throw new InvalidOperationException($"Cannot find key '{keyField}' in data.");
+                            var value = setting.IsKeyDeep
+                                ? GetTokenByDeepKeyInData(data, key)
+                                : GetTokenByKeyInData(data, key);
+
+                            var path = setting.IsKeyDeep ? $"data.{key}" : $"data.{key}.iv";
+
+                            keyFilterArray.Add(new
+                            {
+                                path,
+                                op = value != null ? op : empty,
+                                value
+                            });
                         }
+
+                        object filter = new
+                        {
+                            and = keyFilterArray
+                        };
+
 
                         job.Query = new
                         {
-                            filter = new
-                            {
-                                path = $"data.{keyField}.iv",
-                                op,
-                                value,
-                            }
+                            filter
                         };
 
                         job.Type = BulkUpdateType.Upsert;
@@ -75,6 +90,7 @@ public static class ImportHelper
 
                     update.Jobs.Add(job);
                 }
+
 
                 var result = await contents.BulkUpdateAsync(update);
 
@@ -96,7 +112,59 @@ public static class ImportHelper
         log.Completed($"Import of {totalWritten} content items completed");
     }
 
-    public static IEnumerable<DynamicData> Read(this Csv2SquidexConverter converter, Stream stream, string delimiter)
+    private static JToken? GetTokenByKeyInData(DynamicData data, string key)
+    {
+        if (!data.TryGetValue(key, out var temp) || temp is not JObject obj ||
+            !obj.TryGetValue("iv", StringComparison.Ordinal, out var value))
+        {
+            throw new InvalidOperationException($"Cannot find key '{key}' in data.");
+        }
+
+        return value;
+    }
+
+    private static JToken? GetTokenByDeepKeyInData(DynamicData data, string key)
+    {
+        var keyParts = key.Split('.');
+        switch (keyParts.Length)
+        {
+            case 0:
+                throw new InvalidOperationException($"Invalid deep key '{key}'.");
+            case 1:
+                return GetTokenByKeyInData(data, key);
+        }
+
+        var keyPart = keyParts[0];
+        if (!data.TryGetValue(keyPart, out var token))
+        {
+            throw new InvalidOperationException($"Cannot find key '{key}' in data.");
+        }
+
+        foreach (var part in keyParts.Skip(1))
+        {
+            if (token is JArray)
+            {
+                if (!token.Any())
+                {
+                    return null;
+                }
+
+                token = token[0];
+            }
+
+            token = token?.SelectToken(part);
+
+            if (token == null)
+            {
+                break;
+            }
+        }
+
+        return token;
+    }
+
+    public static IEnumerable<DynamicData> Read(this Csv2SquidexConverter converter, Stream stream,
+        string delimiter)
     {
         using (var streamReader = new StreamReader(stream))
         {
@@ -129,7 +197,9 @@ public static class ImportHelper
         }
     }
 
-    public static IEnumerable<DynamicData> ReadAsSeparatedObjects(this Json2SquidexConverter converter, Stream stream, string separator)
+    public static IEnumerable<DynamicData> ReadAsSeparatedObjects(this Json2SquidexConverter converter,
+        Stream stream,
+        string separator)
     {
         var sb = new StringBuilder();
 
