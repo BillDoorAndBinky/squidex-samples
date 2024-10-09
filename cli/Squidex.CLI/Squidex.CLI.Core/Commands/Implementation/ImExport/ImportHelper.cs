@@ -38,6 +38,7 @@ public static class ImportHelper
             };
 
             const string op = "eq";
+            const string empty = "empty";
 
             foreach (var batch in datas.Batch(50))
             {
@@ -64,7 +65,7 @@ public static class ImportHelper
                             keyFilterArray.Add(new
                             {
                                 path,
-                                op,
+                                op = value != null ? op : empty,
                                 value
                             });
                         }
