@@ -139,14 +139,22 @@ public static class ImportHelper
             throw new InvalidOperationException($"Cannot find key '{key}' in data.");
         }
 
-        var jsonPath = string.Join('.', keyParts.Skip(1));
-        var value = token.SelectToken(jsonPath);
-        if (value == null)
+        foreach (var part in keyParts.Skip(1))
         {
-            throw new InvalidOperationException($"Cannot find key '{key}' in data.");
+            if (token is JArray)
+            {
+                token = token[0];
+            }
+
+            token = token?.SelectToken(part);
+
+            if (token == null)
+            {
+                throw new InvalidOperationException($"Cannot find key '{key}' in data.");
+            }
         }
 
-        return value;
+        return token;
     }
 
     public static IEnumerable<DynamicData> Read(this Csv2SquidexConverter converter, Stream stream,
