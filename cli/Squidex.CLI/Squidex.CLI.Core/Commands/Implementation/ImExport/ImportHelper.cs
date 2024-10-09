@@ -143,6 +143,11 @@ public static class ImportHelper
         {
             if (token is JArray)
             {
+                if (!token.Any())
+                {
+                    return null;
+                }
+
                 token = token[0];
             }
 
@@ -150,7 +155,7 @@ public static class ImportHelper
 
             if (token == null)
             {
-                throw new InvalidOperationException($"Cannot find key '{key}' in data.");
+                break;
             }
         }
 
