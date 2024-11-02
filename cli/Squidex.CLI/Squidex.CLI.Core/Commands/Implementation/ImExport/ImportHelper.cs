@@ -39,6 +39,7 @@ public static class ImportHelper
 
             const string op = "eq";
             const string empty = "empty";
+            var isKeyDeep = keyField != null && keyField.Any(key => key.Contains('.', StringComparison.Ordinal));
 
             foreach (var batch in datas.Batch(50))
             {
@@ -56,11 +57,11 @@ public static class ImportHelper
                         var keyFilterArray = new List<object>(keyField.Length);
                         foreach (var key in keyField)
                         {
-                            var value = setting.IsKeyDeep
+                            var value = isKeyDeep
                                 ? GetTokenByDeepKeyInData(data, key)
                                 : GetTokenByKeyInData(data, key);
 
-                            var path = setting.IsKeyDeep ? $"data.{key}" : $"data.{key}.iv";
+                            var path = isKeyDeep ? $"data.{key}" : $"data.{key}.iv";
 
                             keyFilterArray.Add(new
                             {

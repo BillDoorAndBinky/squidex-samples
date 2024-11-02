@@ -12,6 +12,5 @@ public interface IImportSettings
     string Schema { get; }
 
     string[]? KeyField { get; }
-    bool IsKeyDeep { get; }
     bool Unpublished { get; }
 }
